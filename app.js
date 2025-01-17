@@ -128,9 +128,15 @@ const express = require('express')
 const app = express()
 app.listen(3000)
 
-app.set('view engine', 'ejs')
+const dbConnection = require('./config/db')
+const userModel = require('./models/user') 
+const morgan = require('morgan')
+
+app.use(morgan('dev'))
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
+
+app.set('view engine', 'ejs')
 
 app.get('/', (req, res) => {
     res.send('Wellcome home')
@@ -140,7 +146,16 @@ app.get('/login', (req, res)=>{
     res.render('form')
 })
 
-app.post('/getFormData', (req, res)=>{
+app.post('/login', async(req, res)=>{
+    console.log(req.body);
+    const{name, email, password}= req.body
+    console.log(name, email, password);
+    
+    await userModel.create({
+        name: name,
+        email: email,
+        password: password
+    })
     console.log(req.body);
     res.send('Form submitted')
 })
